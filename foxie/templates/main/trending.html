@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}{{ name }}{% endblock %}
+
+
+{% block body %}
+<div class="row row-fluid">
+    <div class="container col-lg-8 col-lg-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{{ name }}</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="list-group">
+                     {% for yip in latest %}
+                     <small>{{ yip.user.username }} at {{ yip.dt }}</small>
+                     <li class="list-group-item">{{ yip.text }}</li>
+                     {% endfor %}
+                 </ul>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock body %}

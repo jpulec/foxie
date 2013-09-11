@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user }}'s Profile{% endblock %}
+
+
+{% block body %}
+<div class="row row-fluid">
+    <div class="container col-lg-4 col-lg-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Share</h3>
+            </div>
+            <div class="panel-body">
+                <form>
+                    {% csrf_token %}
+                    {{ yip_form.as_p }}
+                    <p>
+                    <button type="submit" formaction="/yip/" class="btn btn-success" formmethod="post">{{ what_does_the_fox_say }}</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Follow Someone</h3>
+            </div>
+            <div class="panel-body">
+                <form>
+                    {% csrf_token %}
+                    {{ follow_form.as_p }}
+                    <p>
+                    <button type="submit" formaction="/follow/" class="btn btn-success" formmethod="post">Follow</button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Trending</h3>
+            </div>
+            <div class="panel-body">
+                <form>
+                    <div class="input-group"> 
+                        <span class="input-group-addon">#</span>
+                        <input id="id_search" name="search" type="text" class="form-control" placeholder="Search...">
+                    </div>
+                    <button type="submit" class="btn btn-success" formaction="/trending/" formmethod="get">Go</button>
+                </form>
+            </div>
+        </div>
+    
+    </div>
+    <div class="container col-lg-4">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Your Feed</h3>
+        </div>
+        <div class="panel-body"> 
+            <ul class="list-group">
+                 {% for yip in yips %}
+                 <small>{{ yip.user.username }} at {{ yip.dt }}</small>
+                 <li class="list-group-item">
+                 {% for word in yip.get_words %}
+                    {% if word|first == '#' %}
+                        <b>{{ word }}</b>
+                    {% else %}
+                        {{ word }}
+                    {% endif %}
+                    {% endfor %}
+                 </li>
+                 {% endfor %}
+             </ul>
+         </div>
+     </div>
+ </div>
+</div>
+{% endblock body %}
