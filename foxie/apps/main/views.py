@@ -3,12 +3,14 @@ from django.views.generic.base import View, TemplateView
 from django.views.generic.edit import FormView, CreateView
 from django.views.generic.dates import ArchiveIndexView
 from django.conf import settings
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
-from foxie.apps.main.forms import MyAuthenticationForm, YipForm, FollowForm
+from foxie.apps.main.forms import MyAuthenticationForm, YipForm, FollowForm, MyPasswordChangeForm
+from foxie.apps.registration.forms import RegistrationForm
 from foxie.apps.main.models import Yip, Follower, Tag
 
 import logging
@@ -16,6 +18,19 @@ from random import choice
 import re
 
 logger = logging.getLogger(__name__)
+
+class Account(FormView):
+    form_class = MyPasswordChangeForm
+    template_name = "main/account.html"
+
+    def get_form_kwargs(self):
+        kwargs = super(Account, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(Account, self).dispatch(*args, **kwargs)
 
 class Login(FormView):
     form_class = MyAuthenticationForm
@@ -39,6 +54,10 @@ class Logout(View):
     def get(self, request, *args, **kwargs):
         auth_logout(request)
         return HttpResponseRedirect(settings.LOGOUT_REDIRECT_URL)
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(Profile, self).dispatch(*args, **kwargs)
 
 class YipView(CreateView):
     model = Yip
@@ -54,6 +73,10 @@ class YipView(CreateView):
             obj, created = Tag.objects.get_or_create(text=match[1:], type="HASHTAG")
             form.instance.tags.add(obj)
         return super(YipView, self).form_valid(form)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(Profile, self).dispatch(*args, **kwargs)
 
 class Profile(TemplateView):
     template_name = "main/profile.html"
@@ -75,6 +98,10 @@ class Profile(TemplateView):
         context['yips'] = Yip.objects.filter(user__username__in=following).order_by('-dt')
         return context
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(Profile, self).dispatch(*args, **kwargs)
+
 class FollowView(CreateView):
     model = Follower
     form_class = FollowForm
@@ -84,6 +111,10 @@ class FollowView(CreateView):
     def form_valid(self, form):
         form.instance.follower = User.objects.get(username=self.request.user)
         return super(FollowView, self).form_valid(form)
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(Profile, self).dispatch(*args, **kwargs)
 
 class TrendingView(ArchiveIndexView):
     model = Yip
@@ -115,7 +146,11 @@ class TrendingView(ArchiveIndexView):
                 qs = qs.none()
             return (date_list, qs, {})
 
-class Home(FormView):
+class Home(TemplateView):
     template_name = "main/signin.html"
-    form_class = MyAuthenticationForm
-    success_url = '.'
+
+    def get_context_data(self, **kwargs):
+        context = super(Home, self).get_context_data(**kwargs)
+        context['registration_form'] = RegistrationForm()
+        context['signin_form'] = MyAuthenticationForm()
+        return context

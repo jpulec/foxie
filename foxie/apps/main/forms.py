@@ -1,4 +1,4 @@
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import TextInput, PasswordInput
 from django import forms
 
@@ -13,6 +13,11 @@ class MyAuthenticationForm(AuthenticationForm):
         self.fields['password'].widget = PasswordInput(attrs={'placeholder': 'Password',
                                                           'class': 'form-control',
                                                           'required':''})
+
+class MyPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super(MyPasswordChangeForm, self).__init__(*args, **kwargs)
+
 class YipForm(forms.ModelForm):
     class Meta:
         model = Yip

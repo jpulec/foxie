@@ -1,8 +1,8 @@
 from django import template
 import re
 
-url_regex = re.compile("^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w\.\?=-]*)*\/?$")
-youtube_regex = re.compile("^(https?:\/\/)?(www.)?youtube.com\/watch\?v=([/\w-]*)*\/?$")
+url_regex = re.compile(r"^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w\.\?=-]*)\/?$")
+youtube_regex = re.compile(r"^(https?:\/\/)?(www\.)?youtube.com\/watch\?v=([/\w-]*)\/?$")
 
 register = template.Library()
 

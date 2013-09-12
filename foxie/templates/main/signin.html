@@ -13,12 +13,12 @@
       <form class="form-signin">
           {% csrf_token %}
         <h2 class="form-signin-heading">Please sign in</h2>
-        {% for field in form %}
+        {% for field in signin_form %}
             {{ field }}
         {% endfor %}
-        {% if form.errors %}
+        {% if signin_form.errors %}
         <div class="alert alert-danger">
-            {% for error in form.error_messages %}
+            {% for error in signin_form.error_messages %}
                 {% if error == 'invalid_login' %}
                 Incorrect username and password combination.
                 {% elif error == 'inactive' %}
@@ -27,8 +27,22 @@
             {% endfor %}
         </div> 
         {% endif %}
-        <button type="submit" formmethod="post" formaction="{% url "login" %}" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        <button type="submit" formmethod="post" formaction="{% url "login" %}" class="btn btn-lg btn-primary btn-block">Sign in</button>
       </form>
+      <form class="form-signin">
+      <h2 class="form-signin-heading">Or register an account</h2>
+            {% csrf_token %}    
+                {% for field in registration_form %}
+                    {% if forloop.counter0|divisibleby:"2" %}
+                        <div class="form-group">
+                            {{ field }}
+                    {% else %}
+                            {{ field }}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            <button type="submit" formmethod="post" formaction="{% url "register" %}" class="btn btn-lg btn-primary btn-block">Register</button>  
+    </form>
 
     </div> <!-- /container -->
 
