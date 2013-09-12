@@ -11,3 +11,5 @@ ALLOWED_HOSTS = ['*']
 STATIC_ROOT = 'staticfiles'
 
 STATIC_URL = '/static/'
+
+INSTALLED_APPS += ('gunicorn',)
