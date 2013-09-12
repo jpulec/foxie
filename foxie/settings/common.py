@@ -1,6 +1,6 @@
 # Django settings for foxy project.
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
