@@ -1,11 +1,14 @@
 {% extends "base.html" %}
+{% block title %}{% if user.is_authenticated %}Home{% else %}Sign In{% endif %}{% endblock %}
+
 
 {% block body %}
+{% if user.is_authenticated %}
+{% include "main/feeds_snippet.html" %}
+{% else %}
+{% block navbar %}
+{% endblock navbar %}
+{% include "main/signin.html" %}
 
-<div class="jumbotron">
-    <div class="container">
-        <h1>Welcome to Foxie</h1>
-    </div>
-</div>
-
+{% endif %}
 {% endblock body %}

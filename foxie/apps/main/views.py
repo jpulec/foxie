@@ -9,7 +9,7 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
-from foxie.apps.main.forms import MyAuthenticationForm, YipForm, FollowForm, MyPasswordChangeForm
+from foxie.apps.main.forms import MyAuthenticationForm, YipForm, FollowForm, MyPasswordChangeForm, ContactForm
 from foxie.apps.registration.forms import RegistrationForm
 from foxie.apps.main.models import Yip, Follower, Tag
 
@@ -62,8 +62,8 @@ class Logout(View):
 class YipView(CreateView):
     model = Yip
     form_class = YipForm
-    success_url = '/profile/'
-    template_name = 'main/profile.html'
+    success_url = '/home/'
+    template_name = 'main/home.html'
 
     def form_valid(self, form):
         form.instance.user = User.objects.get(username=self.request.user)
@@ -105,8 +105,8 @@ class Profile(TemplateView):
 class FollowView(CreateView):
     model = Follower
     form_class = FollowForm
-    success_url = '/profile/'
-    template_name = 'main/profile.html'
+    success_url = '/home/'
+    template_name = 'main/home.html'
 
     def form_valid(self, form):
         form.instance.follower = User.objects.get(username=self.request.user)
@@ -147,10 +147,32 @@ class TrendingView(ArchiveIndexView):
             return (date_list, qs, {})
 
 class Home(TemplateView):
-    template_name = "main/signin.html"
+    template_name = "main/home.html"
+    fox_sayings = ["Ring-ding-ding-ding-dingeringeding",
+                   "Wa-pa-pa-pa-pa-pa-pow",
+                   "Hatee-hatee-hatee-ho",
+                   "Joff-tchoff-tchoffo-tchoffo-tchoff",
+                   "Jacha-chacha-chacha-chow",
+                   "Fraka-kaka-kaka-kaka-kow",
+                   "A-hee-ahee ha-hee",
+                   "A-oo-oo-oo-ooo"]
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
-        context['registration_form'] = RegistrationForm()
-        context['signin_form'] = MyAuthenticationForm()
+        context['user'] = self.request.user
+        if not self.request.user.is_authenticated():
+            context['registration_form'] = RegistrationForm()
+            context['signin_form'] = MyAuthenticationForm()
+        else:
+            context['what_does_the_fox_say'] = choice(self.fox_sayings)
+            following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
+            following.append(self.request.user.username)
+            context['yips'] = Yip.objects.filter(user__username__in=following).order_by('-dt')
         return context
+
+class About(TemplateView):
+    template_name = "main/about.html"
+
+class Contact(FormView):
+    form_class = ContactForm
+    template_name = "main/contact.html"

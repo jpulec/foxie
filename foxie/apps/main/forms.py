@@ -32,3 +32,6 @@ class FollowForm(forms.ModelForm):
     class Meta:
         model = Follower
         exclude = ('follower',)
+
+class ContactForm(forms.Form):
+    pass

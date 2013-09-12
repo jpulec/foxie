@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-from foxie.apps.main.views import Home, Login, Logout, Profile, YipView, FollowView, TrendingView, Account
+from foxie.apps.main.views import Home, Login, Logout, Profile, YipView, FollowView, TrendingView, Account, About, Contact
 from foxie.apps.registration.views import Register
 
 urlpatterns = patterns('',
@@ -22,6 +22,10 @@ urlpatterns = patterns('',
     url(r'^accounts/', include('django.contrib.auth.urls')),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
+
+    # Static-y pages
+    url(r'^about/$', About.as_view(), name="about"),
+    url(r'^contact/$', Contact.as_view(), name='contact'),
 
     # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
