@@ -19,12 +19,17 @@ logger = logging.getLogger(__name__)
 
 class Login(FormView):
     form_class = MyAuthenticationForm
+    template_name = "main/signin.html"
 
     def form_valid(self, form):
         auth_login(self.request, form.get_user())
         if self.request.session.test_cookie_worked():
             self.request.session.delete_test_cookie()
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
+
+    def form_invalid(self, form):
+        print self.request
+        return HttpResponseRedirect(self.request.META['HTTP_REFERER'])
 
     def dispatch(self, request, *args, **kwargs):
         request.session.set_test_cookie()
@@ -46,7 +51,7 @@ class YipView(CreateView):
         form.save()
         matches = re.findall(r'#\w*', form.instance.text)
         for match in matches:
-            obj, created = Tag.objects.get_or_create(text=match[1:])
+            obj, created = Tag.objects.get_or_create(text=match[1:], type="HASHTAG")
             form.instance.tags.add(obj)
         return super(YipView, self).form_valid(form)
 
@@ -68,8 +73,6 @@ class Profile(TemplateView):
         following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
         following.append(self.request.user.username)
         context['yips'] = Yip.objects.filter(user__username__in=following).order_by('-dt')
-        context['yip_form'] = YipForm()
-        context['follow_form'] = FollowForm()
         return context
 
 class FollowView(CreateView):
@@ -113,6 +116,6 @@ class TrendingView(ArchiveIndexView):
             return (date_list, qs, {})
 
 class Home(FormView):
-    template_name = "main/home.html"
+    template_name = "main/signin.html"
     form_class = MyAuthenticationForm
     success_url = '.'

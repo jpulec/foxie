@@ -1,9 +1,10 @@
 {% extends "base.html" %}
-
+{% load main_extras %}
 {% block title %}{{ user }}'s Profile{% endblock %}
 
 
 {% block body %}
+<p>
 <div class="row row-fluid">
     <div class="container col-lg-4 col-lg-offset-2">
         <div class="panel panel-default">
@@ -13,7 +14,10 @@
             <div class="panel-body">
                 <form>
                     {% csrf_token %}
-                    {{ yip_form.as_p }}
+                    <p>
+                    <textarea style="width: 100%; resize: none" rows="6" required id="id_text" max_length=140 name="text" type="textarea" placeholder="Share what you have to say..."></textarea>
+                    </p>
+                    
                     <p>
                     <button type="submit" formaction="/yip/" class="btn btn-success" formmethod="post">{{ what_does_the_fox_say }}</button>
                     </p>
@@ -27,7 +31,9 @@
             <div class="panel-body">
                 <form>
                     {% csrf_token %}
-                    {{ follow_form.as_p }}
+                    <p>
+                    <input class="form-control" id="id_followee" name="followee" placeholder="Find Someone" required type="text">
+                    </p>
                     <p>
                     <button type="submit" formaction="/follow/" class="btn btn-success" formmethod="post">Follow</button>
                     </p>
@@ -40,11 +46,15 @@
             </div>
             <div class="panel-body">
                 <form>
+                    <p>
                     <div class="input-group"> 
                         <span class="input-group-addon">#</span>
-                        <input id="id_search" name="search" type="text" class="form-control" placeholder="Search...">
+                        <input id="id_search" name="search" required type="text" class="form-control" placeholder="Search...">
                     </div>
+                    </p>
+                    <p>
                     <button type="submit" class="btn btn-success" formaction="/trending/" formmethod="get">Go</button>
+                    </p>
                 </form>
             </div>
         </div>
@@ -60,13 +70,41 @@
                  {% for yip in yips %}
                  <small>{{ yip.user.username }} at {{ yip.dt }}</small>
                  <li class="list-group-item">
+                 <p style="word-wrap: break-word">
                  {% for word in yip.get_words %}
                     {% if word|first == '#' %}
                     <a href="/trending/{{ word|slice:"1:" }}/">{{ word }}</a>
+                    {% elif word|is_video %}
+                        <a href="{{ word|full_url }}">{{ word }}</a>
+                        <div id="ytplayer_{{ word }}"></div>
+                        <script>
+                        var tag = document.createElement('script');
+                        tag.src = "https://www.youtube.com/player_api";
+                        var firstScriptTag = document.getElementsByTagName('script')[0];
+                        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+                        // Replace the 'ytplayer' element with an <iframe> and
+                        // YouTube player after the API code downloads.
+                        var player;
+                        function onYouTubePlayerAPIReady() {
+                            player = new YT.Player('ytplayer_{{ word }}', {
+                                height: '280',
+                                width: '100%',
+                                videoId: '{{ word|get_query_arg:"v" }}'
+                                });
+                        }
+                        </script>
+                    {% elif word|is_image %}
+                        {{ word|full_url }}
+                        <img style="width: 100%" src={{ word|full_url }}></img>
+                    {% elif word|valid_url %}
+                    <a href="{{ word|full_url }}">{{ word }}</a>
                     {% else %}
+
                         {{ word }}
                     {% endif %}
                     {% endfor %}
+                    </p>
                  </li>
                  {% endfor %}
              </ul>
@@ -74,4 +112,5 @@
      </div>
  </div>
 </div>
+</p>
 {% endblock body %}
