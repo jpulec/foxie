@@ -43,9 +43,10 @@ class YipView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = User.objects.get(username=self.request.user)
+        form.save()
         matches = re.findall(r'#\w*', form.instance.text)
         for match in matches:
-            obj, created = Tag.objects.get_or_create(text=match)
+            obj, created = Tag.objects.get_or_create(text=match[1:])
             form.instance.tags.add(obj)
         return super(YipView, self).form_valid(form)
 
@@ -85,10 +86,26 @@ class TrendingView(ArchiveIndexView):
     model = Yip
     template_name = "main/trending.html"
     date_field = 'dt'
+    allow_empty = True
+
+    def get_context_data(self, **kwargs):
+        context = super(TrendingView, self).get_context_data(**kwargs)
+        if self.request.GET:
+            context['name'] = self.request.GET.get('search', "")
+        else:
+            context['name'] = self.kwargs['name']
+        return context
 
     def get_dated_items(self):
         if self.request.GET:
-            qs = self.get_dated_queryset(ordering='-%s' % self.get_date_field(), tag__text__eq=self.request.GET.get('search', ""))
+            qs = self.get_dated_queryset(ordering='-%s' % self.get_date_field(), tags__text__iexact=self.request.GET.get('search', ""))
+            date_list = self.get_date_list(qs, ordering='DESC')
+
+            if not date_list:
+                qs = qs.none()
+            return (date_list, qs, {})
+        else:
+            qs = self.get_dated_queryset(ordering='-%s' % self.get_date_field(), tags__text__iexact=self.kwargs['name'])
             date_list = self.get_date_list(qs, ordering='DESC')
 
             if not date_list:

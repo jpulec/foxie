@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     url(r'^yip/$', YipView.as_view(), name="yip"),
     url(r'^follow/$', FollowView.as_view(), name="follow"),
     url(r'^trending/$', TrendingView.as_view(), name="trending"),
-    url(r'^trending/(?P<name>)/$', TrendingView.as_view(), name="trending_query"),
+    url(r'^trending/(?P<name>\w+)/$', TrendingView.as_view(), name="trending_query"),
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 

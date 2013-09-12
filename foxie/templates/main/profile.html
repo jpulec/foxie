@@ -62,7 +62,7 @@
                  <li class="list-group-item">
                  {% for word in yip.get_words %}
                     {% if word|first == '#' %}
-                        <b>{{ word }}</b>
+                    <a href="/trending/{{ word|slice:"1:" }}/">{{ word }}</a>
                     {% else %}
                         {{ word }}
                     {% endif %}
