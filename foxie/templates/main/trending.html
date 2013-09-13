@@ -4,31 +4,12 @@
 
 
 {% block body %}
+{{ block.super }}
 <p>
 <div class="row row-fluid">
     <div class="container col-lg-8 col-lg-offset-2">
         <div class="panel panel-default">
-            <div class="panel-heading">
-                <a href"." class="panel-title" style="color:#428bca">#{{ name|capfirst }}</a>
-            </div>
-            <div class="panel-body">
-                <ul class="list-group">
-                     {% for yip in latest %}
-                     <small>{{ yip.user.username }} at {{ yip.dt }}</small>
-                     <li class="list-group-item">
-                 {% for word in yip.get_words %}
-                    {% if word|first == '#' %}
-                    <a href="/trending/{{ word|slice:"1:" }}/">{{ word }}</a>
-                    {% else %}
-                        {{ word }}
-                    {% endif %}
-                    {% endfor %}
-                    </li>
-                     {% empty %}
-                     It doesn't look like anyone has said anything about <a href=".">#{{ name }}</a> yet.
-                     {% endfor %}
-                 </ul>
-            </div>
+            {% include "main/trendings.html" %}
         </div>
 
     </div>

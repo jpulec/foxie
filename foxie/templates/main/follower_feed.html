@@ -1,0 +1,11 @@
+<div class="panel-body"> 
+<ul id="follower_feed" class="list-group">
+    {% for follower in followers %}
+    <li class="list-group-item">
+    <p style="word-wrap: break-word">
+        {{ follower }}
+    </p>
+    </li>
+    {% endfor %}
+</ul>
+</div>

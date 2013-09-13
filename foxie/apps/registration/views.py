@@ -7,7 +7,7 @@ from foxie.apps.registration.forms import RegistrationForm
 class Register(CreateView):
     model = User
     form_class = RegistrationForm
-    success_url = "/profile/"
+    success_url = "/"
 
     def form_valid(self, form):
         form.instance.backend = 'django.contrib.auth.backends.ModelBackend'

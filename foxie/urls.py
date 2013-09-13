@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-from foxie.apps.main.views import Home, Login, Logout, Profile, YipView, FollowView, TrendingView, Account, About, Contact
+from foxie.apps.main.views import Home, Login, Logout, Profile, YipView, FollowView, TrendingView, Account, About, Contact, Trending
 from foxie.apps.registration.views import Register
 
 urlpatterns = patterns('',
@@ -14,9 +14,12 @@ urlpatterns = patterns('',
     url(r'^profile/$', Profile.as_view(), name="profile"),
     url(r'^profile/(?P<profile_user>\w+)/$', Profile.as_view(), name="profile"),
     url(r'^yip/$', YipView.as_view(), name="yip"),
+    url(r'^feed/$', YipView.as_view(), name="feed"),
     url(r'^follow/$', FollowView.as_view(), name="follow"),
-    url(r'^trending/$', TrendingView.as_view(), name="trending"),
-    url(r'^trending/(?P<name>\w+)/$', TrendingView.as_view(), name="trending_query"),
+    url(r'^following/$', FollowView.as_view(), name="following"),
+    url(r'^followers/$', FollowView.as_view(), name="followers"),
+    url(r'^trending/$', Trending.as_view(), name="trending"),
+    url(r'^trending/(?P<name>\w+)/$', Trending.as_view(), name="trending_query"),
     url(r'^register/$', Register.as_view(), name="register"),
     url(r'^account/$', Account.as_view(), name="account"),
     url(r'^accounts/', include('django.contrib.auth.urls')),

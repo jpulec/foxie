@@ -3,25 +3,26 @@
 
 
 {% block body %}
+{{ block.super }}
 <p>
 <div class="row row-fluid">
     <div class="container col-lg-4 col-lg-offset-2">
         <div class="panel panel-default">
             <div class="list-group">
-                <a href="#" class="list-group-item active">
-                    <h4 class="list-group-item-heading">Feed</h4>
+                {% for tab in tabs %}
+                {% if forloop.first %}
+                    <a id="{{ tab }}" href="#" class="list-group-item active">
+                        {% else %}
+                    <a id="{{ tab }}" href="#" class="list-group-item">
+                {% endif %}
+                    <h4 class="list-group-item-heading">{{ tab|capfirst }}</h4>
                 </a>
-                <a href="#" class="list-group-item">
-                    <h4 class="list-group-item-heading">Followers</h4>
-                </a>
-                <a href="#" class="list-group-item">
-                    <h4 class="list-group-item-heading">Following</h4>
-                </a>
+                {% endfor %}
             </div>
         </div>
     </div>
     <div class="container col-lg-4">
-    <div class="panel panel-default">
+    <div id="contentpanel" class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{{ profile_user }}'s Feed</h3>
         </div>
@@ -33,3 +34,31 @@
 </div>
 </p>
 {% endblock body %}
+
+{% block script %}
+<script>
+{% for tab in tabs %}
+$(document).ready( function() {
+        $('#{{ tab }}').click( function() {
+            $.ajax({
+                data: {"profile_user":"{{ profile_user }}"},
+                type: "GET",
+                url:  "/{{ tab }}/",
+                success: function(response) {
+                    $('#contentpanel').html(response);
+                    $('#{{ tab }}').addClass('active');
+                    {% for newtab in tabs %}
+                    {% if newtab != tab %}
+                    $('#{{ newtab }}').removeClass('active');
+                    {% endif %}
+                    {% endfor %}
+                    }
+            });
+            return false;
+         });
+       });
+{% endfor %}
+</script>
+
+
+{% endblock script %}

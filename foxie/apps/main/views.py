@@ -60,11 +60,12 @@ class Logout(View):
     def dispatch(self, *args, **kwargs):
         return super(Logout, self).dispatch(*args, **kwargs)
 
+
 class YipView(CreateView, TemplateView):
     model = Yip
     form_class = YipForm
     success_url = '/'
-    template_name = 'main/yip_feed.html'
+    template_name = 'main/yips.html'
 
     def form_valid(self, form):
         form.instance.user = User.objects.get(username=self.request.user)
@@ -84,16 +85,33 @@ class YipView(CreateView, TemplateView):
         context['yips'] = Yip.objects.filter(Q(user__username__in=following) | Q(tags__tag_type="AT", tags__text=self.request.user)).order_by('-dt')
         return self.render_to_response(context)
 
+    def get_context_data(self, **kwargs):
+        context = super(YipView, self).get_context_data(**kwargs)
+        context['profile_user'] =  self.request.GET.get('profile_user', self.request.user.username)
+        following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
+        following.append(self.request.user.username)
+        context['yips'] = Yip.objects.filter(Q(user__username__in=following) | Q(tags__tag_type="AT", tags__text=self.request.user)).order_by('-dt')
+        return context
+
+    def get(self, request, *args, **kwargs):
+        return super(YipView, self).get(request, *args, **kwargs)
+
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
         return super(YipView, self).dispatch(*args, **kwargs)
 
+#TODO: Rename these more clearly
+class ProfileView(TemplateView):
+    template_name = "main/yips.html"
+
 class Profile(TemplateView):
     template_name = "main/profile.html"
+    tabs = ["feed", "followers", "following"]
 
     def get_context_data(self, **kwargs):
         context = super(Profile, self).get_context_data(**kwargs)
         context['profile_user'] =  self.kwargs['profile_user']
+        context['tabs'] = self.tabs
         user = get_object_or_404(User, username=self.kwargs['profile_user'])
         context['yips'] = Yip.objects.filter(Q(user__username=self.kwargs['profile_user']) | Q(tags__tag_type="AT", tags__text=self.kwargs['profile_user'])).order_by('-dt')
         return context
@@ -105,29 +123,54 @@ class Profile(TemplateView):
 class FollowView(CreateView):
     model = Follower
     form_class = FollowForm
-    success_url = '/home/'
-    template_name = 'main/home.html'
+    success_url = '/'
+    template_name = 'main/followers.html'
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
 
     def form_valid(self, form):
         form.instance.follower = User.objects.get(username=self.request.user)
+        form.save()
         return super(FollowView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        return super(FollowView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(FollowView, self).get_context_data(**kwargs)
+        context['profile_user'] =  self.request.GET.get('profile_user', "")
+        context['followers'] = Follower.objects.filter(followee__username=context['profile_user'])
+        context['following'] = Follower.objects.filter(follower__username=context['profile_user'])
+        return context
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(Profile, self).dispatch(*args, **kwargs)
+        return super(FollowView, self).dispatch(*args, **kwargs)
 
-class TrendingView(ArchiveIndexView):
+#TODO: Rename these more clearly
+class TrendingView(TemplateView):
+    template_name = "main/trendings.html"
+
+class Trending(ArchiveIndexView):
     model = Yip
     template_name = "main/trending.html"
     date_field = 'dt'
     allow_empty = True
 
     def get_context_data(self, **kwargs):
-        context = super(TrendingView, self).get_context_data(**kwargs)
+        context = super(Trending, self).get_context_data(**kwargs)
         if self.request.GET:
             context['name'] = self.request.GET.get('search', "")
         else:
             context['name'] = self.kwargs['name']
+        context['yips'] = context['latest']
         return context
 
     def get_dated_items(self):
@@ -165,6 +208,7 @@ class Home(TemplateView):
             context['registration_form'] = RegistrationForm()
             context['signin_form'] = MyAuthenticationForm()
         else:
+            context['profile_user'] = self.request.user.username
             context['what_does_the_fox_say'] = choice(self.fox_sayings)
             following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
             following.append(self.request.user.username)

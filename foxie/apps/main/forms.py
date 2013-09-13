@@ -1,5 +1,6 @@
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.forms.widgets import TextInput, PasswordInput
+from django.contrib.auth.models import User
 from django import forms
 
 from foxie.apps.main.models import Yip, Follower
@@ -26,9 +27,11 @@ class YipForm(forms.ModelForm):
 class FollowForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FollowForm, self).__init__(*args, **kwargs)
+        self.fields['followee'].to_field_name="username"
         self.fields['followee'].widget = TextInput(attrs={'placeholder': 'Find Someone',
                                                           'class': 'form-control',
                                                           'required':''})
+ 
     class Meta:
         model = Follower
         exclude = ('follower',)
