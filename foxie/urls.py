@@ -9,10 +9,10 @@ from foxie.apps.registration.views import Register
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', Home.as_view(), name='home'),
-    url(r'^login/$', Login.as_view(), name="login"),
-    url(r'^logout/$', Logout.as_view(), name="logout"),
+    url(r'^login/$', Login.as_view(), name="my_login"),
+    url(r'^logout/$', Logout.as_view(), name="my_logout"),
     url(r'^profile/$', Profile.as_view(), name="profile"),
-    url(r'^profile/(?P<username>)/$', Profile.as_view(), name="profile"),
+    url(r'^profile/(?P<profile_user>\w+)/$', Profile.as_view(), name="profile"),
     url(r'^yip/$', YipView.as_view(), name="yip"),
     url(r'^follow/$', FollowView.as_view(), name="follow"),
     url(r'^trending/$', TrendingView.as_view(), name="trending"),

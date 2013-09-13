@@ -9,6 +9,8 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from foxie.apps.main.forms import MyAuthenticationForm, YipForm, FollowForm, MyPasswordChangeForm, ContactForm
 from foxie.apps.registration.forms import RegistrationForm
 from foxie.apps.main.models import Yip, Follower, Tag
@@ -43,7 +45,6 @@ class Login(FormView):
         return HttpResponseRedirect(settings.LOGIN_REDIRECT_URL)
 
     def form_invalid(self, form):
-        print self.request
         return HttpResponseRedirect(self.request.META['HTTP_REFERER'])
 
     def dispatch(self, request, *args, **kwargs):
@@ -57,7 +58,7 @@ class Logout(View):
     
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(Profile, self).dispatch(*args, **kwargs)
+        return super(Logout, self).dispatch(*args, **kwargs)
 
 class YipView(CreateView):
     model = Yip
@@ -70,8 +71,13 @@ class YipView(CreateView):
         form.save()
         matches = re.findall(r'#\w*', form.instance.text)
         for match in matches:
-            obj, created = Tag.objects.get_or_create(text=match[1:])
+            obj, created = Tag.objects.get_or_create(text=match[1:], tag_type="HASHTAG")
             form.instance.tags.add(obj)
+        matches = re.findall(r'@\w*', form.instance.text)
+        for match in matches:
+            if User.objects.filter(username=match[1:]).exists():
+                obj, created = Tag.objects.get_or_create(text=match[1:], tag_type="AT")
+                form.instance.tags.add(obj)
         return super(YipView, self).form_valid(form)
 
     @method_decorator(login_required)
@@ -80,22 +86,12 @@ class YipView(CreateView):
 
 class Profile(TemplateView):
     template_name = "main/profile.html"
-    fox_sayings = ["Ring-ding-ding-ding-dingeringeding",
-                   "Wa-pa-pa-pa-pa-pa-pow",
-                   "Hatee-hatee-hatee-ho",
-                   "Joff-tchoff-tchoffo-tchoffo-tchoff",
-                   "Jacha-chacha-chacha-chow",
-                   "Fraka-kaka-kaka-kaka-kow",
-                   "A-hee-ahee ha-hee",
-                   "A-oo-oo-oo-ooo"]
-
 
     def get_context_data(self, **kwargs):
         context = super(Profile, self).get_context_data(**kwargs)
-        context['what_does_the_fox_say'] = choice(self.fox_sayings)
-        following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
-        following.append(self.request.user.username)
-        context['yips'] = Yip.objects.filter(user__username__in=following).order_by('-dt')
+        context['profile_user'] =  self.kwargs['profile_user']
+        user = get_object_or_404(User, username=self.kwargs['profile_user'])
+        context['yips'] = Yip.objects.filter(Q(user__username=self.kwargs['profile_user']) | Q(tags__tag_type="AT", tags__text=self.kwargs['profile_user'])).order_by('-dt')
         return context
 
     @method_decorator(login_required)
@@ -160,7 +156,6 @@ class Home(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['user'] = self.request.user
-        print self.request.user
         if not self.request.user.is_authenticated():
             context['registration_form'] = RegistrationForm()
             context['signin_form'] = MyAuthenticationForm()
@@ -168,7 +163,7 @@ class Home(TemplateView):
             context['what_does_the_fox_say'] = choice(self.fox_sayings)
             following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
             following.append(self.request.user.username)
-            context['yips'] = Yip.objects.filter(user__username__in=following).order_by('-dt')
+            context['yips'] = Yip.objects.filter(Q(user__username__in=following) | Q(tags__tag_type="AT", tags__text=self.request.user)).order_by('-dt')
         return context
 
 class About(TemplateView):
