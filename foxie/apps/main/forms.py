@@ -7,7 +7,7 @@ from foxie.apps.main.models import Yip, Follower
 class MyAuthenticationForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(MyAuthenticationForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget = TextInput(attrs={'placeholder': 'Email',
+        self.fields['username'].widget = TextInput(attrs={'placeholder': 'Username',
                                                           'class': 'form-control',
                                                           'required':''})
         self.fields['password'].widget = PasswordInput(attrs={'placeholder': 'Password',

@@ -60,11 +60,11 @@ class Logout(View):
     def dispatch(self, *args, **kwargs):
         return super(Logout, self).dispatch(*args, **kwargs)
 
-class YipView(CreateView):
+class YipView(CreateView, TemplateView):
     model = Yip
     form_class = YipForm
     success_url = '/'
-    template_name = 'main/home.html'
+    template_name = 'main/yip_feed.html'
 
     def form_valid(self, form):
         form.instance.user = User.objects.get(username=self.request.user)
@@ -78,7 +78,11 @@ class YipView(CreateView):
             if User.objects.filter(username=match[1:]).exists():
                 obj, created = Tag.objects.get_or_create(text=match[1:], tag_type="AT")
                 form.instance.tags.add(obj)
-        return super(YipView, self).form_valid(form)
+        context = self.get_context_data()
+        following = [ relationship.followee for relationship in Follower.objects.filter(follower__username=self.request.user)]
+        following.append(self.request.user.username)
+        context['yips'] = Yip.objects.filter(Q(user__username__in=following) | Q(tags__tag_type="AT", tags__text=self.request.user)).order_by('-dt')
+        return self.render_to_response(context)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -152,6 +156,7 @@ class Home(TemplateView):
                    "Fraka-kaka-kaka-kaka-kow",
                    "A-hee-ahee ha-hee",
                    "A-oo-oo-oo-ooo"]
+
 
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)

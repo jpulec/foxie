@@ -5,15 +5,15 @@
             <div class="panel-heading">
                 <h3 class="panel-title">Share</h3>
             </div>
-            <div class="panel-body">
-                <form>
+            <div id="share_div" class="panel-body">
+                <form id="share" action="{% url "yip" %}" method="post">
                     {% csrf_token %}
                     <p>
                     <textarea class="form-control" style="width: 100%; resize: none" rows="6" required id="id_text" max_length=140 name="text" type="textarea" placeholder="Share what you have to say..."></textarea>
                     </p>
 
                     <p>
-                    <button type="submit" formaction="/yip/" class="btn btn-success" formmethod="post">{{ what_does_the_fox_say }}</button>
+                    <button type="submit" class="btn btn-success" >{{ what_does_the_fox_say }}</button>
                     </p>
                 </form>
             </div>
@@ -23,13 +23,13 @@
                 <h3 class="panel-title">Follow Someone</h3>
             </div>
             <div class="panel-body">
-                <form>
+                <form id="follow" action="{% url "follow" %}" action="post">
                     {% csrf_token %}
                     <p>
                     <input class="form-control" id="id_followee" name="followee" placeholder="Find Someone" required type="text">
                     </p>
                     <p>
-                    <button type="submit" formaction="/follow/" class="btn btn-success" formmethod="post">Follow</button>
+                    <button type="submit" class="btn btn-success">Follow</button>
                     </p>
                 </form>
             </div>
@@ -39,7 +39,7 @@
                 <h3 class="panel-title">Trending</h3>
             </div>
             <div class="panel-body">
-                <form>
+                <form id="trending" action="{% url "trending" %}" method="get">
                     <p>
                     <div class="input-group"> 
                         <span class="input-group-addon">#</span>
@@ -47,7 +47,7 @@
                     </div>
                     </p>
                     <p>
-                    <button type="submit" class="btn btn-success" formaction="/trending/" formmethod="get">Go</button>
+                    <button type="submit" class="btn btn-success">Go</button>
                     </p>
                 </form>
             </div>

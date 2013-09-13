@@ -22,8 +22,6 @@
 {% endblock header_extra %}
 </head>
 <body>
-{% block navbar %}
-{% endblock navbar %}
 {% block body %}
 {% endblock body %}
 <hr>
@@ -38,5 +36,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="{{ STATIC_URL }}js/jquery.js"></script>
     <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+    {% block script %}
+    {% endblock script %}
     </body>
 </html>
