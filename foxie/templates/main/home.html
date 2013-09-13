@@ -4,11 +4,9 @@
 
 {% block body %}
 {% if user.is_authenticated %}
+{% include "main/navbar_snippet.html" %}
 {% include "main/feeds_snippet.html" %}
 {% else %}
-{% block navbar %}
-{% endblock navbar %}
 {% include "main/signin.html" %}
-
 {% endif %}
 {% endblock body %}

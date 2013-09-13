@@ -62,7 +62,7 @@ class Logout(View):
 class YipView(CreateView):
     model = Yip
     form_class = YipForm
-    success_url = '/home/'
+    success_url = '/'
     template_name = 'main/home.html'
 
     def form_valid(self, form):
@@ -70,13 +70,13 @@ class YipView(CreateView):
         form.save()
         matches = re.findall(r'#\w*', form.instance.text)
         for match in matches:
-            obj, created = Tag.objects.get_or_create(text=match[1:], type="HASHTAG")
+            obj, created = Tag.objects.get_or_create(text=match[1:])
             form.instance.tags.add(obj)
         return super(YipView, self).form_valid(form)
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
-        return super(Profile, self).dispatch(*args, **kwargs)
+        return super(YipView, self).dispatch(*args, **kwargs)
 
 class Profile(TemplateView):
     template_name = "main/profile.html"
@@ -160,6 +160,7 @@ class Home(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['user'] = self.request.user
+        print self.request.user
         if not self.request.user.is_authenticated():
             context['registration_form'] = RegistrationForm()
             context['signin_form'] = MyAuthenticationForm()

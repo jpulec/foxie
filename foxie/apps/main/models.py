@@ -3,16 +3,10 @@ from django.contrib.auth.models import User
 
 
 class Tag(models.Model):
-    TAG_CHOICES = (
-            ("HASHTAG", "Hashtag"),
-            ("LINK", "Link"),
-        )
-
     text = models.CharField(max_length=140)
-    tag_type = models.CharField(max_length=10, choices=TAG_CHOICES)
 
     def __unicode__(self):
-        return self.tag_type + ":" + self.text
+        return self.text
 
 class Yip(models.Model):
     text = models.CharField(max_length=140)
