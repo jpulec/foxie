@@ -1,18 +1,14 @@
-{% extends "base.html" %}
+{% extends "base_nav.html" %}
 {% load i18n %}
 
 {% block title %}{% trans 'Page not found' %}{% endblock %}
 
-{% block modal %}
+{% block body %}
+{{ block.super }}
 <div class="modal-header">
 <h2>{% trans 'Page not found' %}</h2>
 </div>
 <div class="modal-body">
 <p>{% trans "We're sorry, but the requested page could not be found." %}</p>
 </div>
-        <div class="modal-footer">
-        <footer>
-            <p>&copy; ExpressCheckouts 2013</p>
-        </footer>
-        </div>
 {% endblock %}
