@@ -1,5 +1,6 @@
 {% load main_extras %}
-<ul id="yip_feed" class="list-group">
+
+<ul class="list-group">
     {% for yip in yips %}
     <small>{{ yip.user.username }} at {{ yip.dt }}</small>
     <li class="list-group-item">
@@ -13,21 +14,14 @@
     <a href="{{ word|full_url }}">{{ word }}</a>
     <div id="ytplayer_{{ word }}"></div>
     <script>
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/player_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+var {{ word|get_query_arg:"v" }}_tag = document.createElement('script');
+{{ word|get_query_arg:"v" }}_tag.src = "https://www.youtube.com/player_api";
+var {{ word|get_query_arg:"v" }}_firstScriptTag = document.getElementsByTagName('script')[0];
+{{ word|get_query_arg:"v" }}_firstScriptTag.parentNode.insertBefore({{ word|get_query_arg:"v" }}_tag, {{ word|get_query_arg:"v" }}_firstScriptTag);
 
 // Replace the 'ytplayer' element with an <iframe> and
 // YouTube player after the API code downloads.
-var player;
-function onYouTubePlayerAPIReady() {
-    player = new YT.Player('ytplayer_{{ word }}', {
-height: '280',
-width: '100%',
-videoId: '{{ word|get_query_arg:"v" }}'
-});
-}
+var {{ word|get_query_arg:"v" }}_player;
     </script>
     {% elif word|is_image %}
     <a href="{{ word|full_url }}">{{ word|full_url }}</a>
@@ -36,6 +30,7 @@ videoId: '{{ word|get_query_arg:"v" }}'
     <a href="{{ word|full_url }}">{{ word }}</a>
     {% else %}
 
+
     {{ word }}
     {% endif %}
     {% endfor %}
@@ -43,3 +38,23 @@ videoId: '{{ word|get_query_arg:"v" }}'
     </li>
     {% endfor %}
 </ul>
+
+<script>
+function onYouTubePlayerAPIReady() {
+{% for yip in yips %}
+{% for word in yip.get_words %}
+    {% if word|is_video %}
+{{ word|get_query_arg:"v" }}_player = new YT.Player('ytplayer_{{ word }}', {
+height: '280',
+width: '100%',
+videoId: '{{ word|get_query_arg:"v" }}'
+});
+
+
+{% endif %}
+
+
+{% endfor %}
+{% endfor %}
+}
+</script>

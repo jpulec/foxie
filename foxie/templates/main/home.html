@@ -53,7 +53,7 @@ $(document).ready( function() {
                 type: $(this).attr('method'),
                 url:  $(this).attr('action'),
                 success: function(response) {
-                    $('#yip_feed').html(response);
+                    $('#yips_feed').html(response);
                 }
             });
             return false;
