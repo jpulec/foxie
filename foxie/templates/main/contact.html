@@ -1,1 +1,21 @@
 {% extends "base_nav.html" %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block body %}
+{{ block.super }}
+<div class="container">
+    <p>
+    <div class="jumbotron">
+        <h1>Contact Us</h1>
+            <p>Just fill out the form below regarding any questions, comments, or complaints. We would love to hear from you.</p>
+            <form action"." method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary btn-large">Submit</button>
+            </form>
+    </div>
+    </p>
+</div>
+
+    {% endblock %}

@@ -1,5 +1,5 @@
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.forms.widgets import TextInput, PasswordInput
+from django.forms.widgets import TextInput, PasswordInput, Textarea
 from django.contrib.auth.models import User
 from django import forms
 
@@ -37,4 +37,6 @@ class FollowForm(forms.ModelForm):
         exclude = ('follower',)
 
 class ContactForm(forms.Form):
-    pass
+    sender  = forms.EmailField()
+    subject = forms.CharField(max_length=100)
+    message = forms.CharField(widget=Textarea(attrs={'resize':'none'}))

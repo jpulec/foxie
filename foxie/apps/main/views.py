@@ -94,6 +94,7 @@ class YipView(CreateView, TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
+        self.object = None
         return super(YipView, self).get(request, *args, **kwargs)
 
     @method_decorator(login_required)
@@ -110,10 +111,10 @@ class Profile(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(Profile, self).get_context_data(**kwargs)
-        context['profile_user'] =  self.kwargs['profile_user']
+        context['profile_user'] = self.kwargs.get('profile_user', self.request.user.username)
         context['tabs'] = self.tabs
-        user = get_object_or_404(User, username=self.kwargs['profile_user'])
-        context['yips'] = Yip.objects.filter(Q(user__username=self.kwargs['profile_user']) | Q(tags__tag_type="AT", tags__text=self.kwargs['profile_user'])).order_by('-dt')
+        user = get_object_or_404(User, username=context['profile_user'])
+        context['yips'] = Yip.objects.filter(Q(user__username=context['profile_user']) | Q(tags__tag_type="AT", tags__text=context['profile_user'])).order_by('-dt')
         return context
 
     @method_decorator(login_required)
@@ -139,9 +140,6 @@ class FollowView(CreateView):
         form.instance.follower = User.objects.get(username=self.request.user)
         form.save()
         return super(FollowView, self).form_valid(form)
-
-    def get(self, request, *args, **kwargs):
-        return super(FollowView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(FollowView, self).get_context_data(**kwargs)
@@ -204,6 +202,7 @@ class Home(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(Home, self).get_context_data(**kwargs)
         context['user'] = self.request.user
+        context['tab_selected'] = "home"
         if not self.request.user.is_authenticated():
             context['registration_form'] = RegistrationForm()
             context['signin_form'] = MyAuthenticationForm()
@@ -218,6 +217,22 @@ class Home(TemplateView):
 class About(TemplateView):
     template_name = "main/about.html"
 
+    def get_context_data(self, **kwargs):
+        context = super(About, self).get_context_data(**kwargs)
+        context['tab_selected'] = "about"
+        return context
+
 class Contact(FormView):
     form_class = ContactForm
     template_name = "main/contact.html"
+    success_url = "/"
+
+    def form_valid(self, form):
+        from django.core.mail import send_mail
+        send_mail(form.cleaned_data['subject'], form.cleaned_data['message'], form.cleaned_data['sender'], ["jpulec@gmail.com"])
+        return super(Contact, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(Contact, self).get_context_data(**kwargs)
+        context['tab_selected'] = "contact"
+        return context
